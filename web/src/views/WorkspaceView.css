@@ -1,0 +1,206 @@
+.workspace-page {
+  padding-block: var(--space-6) var(--space-9);
+}
+
+.workspace-inner {
+  width: 100%;
+  max-width: var(--content-workspace);
+  margin: 0 auto;
+  padding-inline: var(--content-pad);
+}
+
+.service-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: var(--space-4);
+  padding: 12px 16px;
+  border: 1px solid var(--color-info-border);
+  border-left: 3px solid var(--color-info);
+  border-radius: var(--radius-sm);
+  background: var(--color-info-soft);
+  color: var(--color-fg-strong);
+  font-size: var(--font-size-small);
+  line-height: 1.6;
+}
+
+.service-status--error {
+  border-color: var(--color-danger-border);
+  border-left-color: var(--color-danger);
+  background: var(--color-danger-soft);
+}
+
+.service-dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: var(--color-info);
+}
+
+.service-status--error .service-dot {
+  background: var(--color-danger);
+}
+
+.service-status p {
+  margin: 0;
+}
+
+.workspace-grid {
+  display: grid;
+  grid-template-columns: minmax(340px, 400px) minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.workspace-input,
+.workspace-result {
+  min-width: 0;
+}
+
+.result-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+  padding-inline: 2px;
+}
+
+.result-eyebrow {
+  margin-bottom: 2px;
+  color: var(--color-fg-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+}
+
+.result-title {
+  margin: 0;
+  font-size: 1.35rem;
+  line-height: 1.2;
+}
+
+.result-hint {
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-caption);
+  white-space: nowrap;
+}
+
+/* 生成后仅用程序化焦点通知读屏；标题不在 Tab 顺序中，不显示视觉焦点环。 */
+.result-title:focus {
+  outline: none;
+}
+
+.result-error {
+  margin-bottom: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-danger-soft);
+  border-left: 3px solid var(--color-danger);
+  border-radius: var(--radius-sm);
+  background: var(--color-danger-soft);
+  color: var(--color-fg-strong);
+  font-size: var(--font-size-small);
+}
+
+.result-error-note {
+  margin-top: var(--space-2);
+  color: var(--color-fg-muted);
+}
+
+.result-loading {
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-xs);
+}
+
+.demo-notice {
+  margin-bottom: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-info-border);
+  border-left: 3px solid var(--color-info);
+  border-radius: var(--radius-sm);
+  background: var(--color-info-soft);
+  color: var(--color-fg-strong);
+  font-size: var(--font-size-small);
+}
+
+.loading-text {
+  margin-top: var(--space-4);
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-small);
+}
+
+.cancel-button {
+  min-height: 44px;
+  margin-top: var(--space-4);
+}
+
+.empty-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 440px;
+  padding: var(--space-7) var(--space-6);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-xs);
+  color: var(--color-fg-muted);
+  text-align: center;
+}
+
+.empty-kicker {
+  display: inline-flex;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: var(--font-size-caption);
+  font-weight: 600;
+}
+
+.empty-title {
+  margin-top: var(--space-3);
+  color: var(--color-fg);
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+
+.empty-copy {
+  max-width: 42ch;
+  margin-top: var(--space-2);
+  line-height: 1.7;
+}
+
+.demo-button {
+  min-height: 44px;
+  margin-top: var(--space-4);
+}
+
+@media (max-width: 1000px) {
+  .workspace-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .workspace-page {
+    padding-block: var(--space-5) var(--space-7);
+  }
+
+  .result-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .empty-result {
+    min-height: 240px;
+    padding: var(--space-5) var(--space-4);
+  }
+}

@@ -1,6 +1,6 @@
 /*
  * AIGC Minutes 设计 token
- * 三层：primitive -> semantic -> Element Plus 覆盖。
+ * 两层：primitive -> semantic；antd 主题在 styles/antdTheme.ts 里读取这些变量。
  * 现代 SaaS 方向：冷净浅灰底、白色内容面、深墨文字、单一蓝色强调。
  * 组件不要直接写十六进制颜色；新增颜色先加到这一层。
  */
@@ -108,47 +108,4 @@ html:root {
   --duration-base: 180ms;
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
 
-  /* Element Plus 语义映射：只改变量，不靠 !important 覆盖组件 */
-  --el-color-primary: var(--color-primary);
-  --el-color-primary-dark-2: var(--color-primary-hover);
-  --el-color-primary-light-3: var(--blue-500);
-  --el-color-primary-light-5: #60a5fa;
-  --el-color-primary-light-7: #93c5fd;
-  --el-color-primary-light-8: #bfdbfe;
-  --el-color-primary-light-9: var(--color-primary-soft);
-  --el-color-danger: var(--color-danger);
-  --el-color-danger-dark-2: var(--color-danger-hover);
-  --el-color-danger-light-3: #ef4444;
-  --el-color-danger-light-5: #f87171;
-  --el-color-danger-light-9: var(--color-danger-soft);
-  --el-color-success: var(--color-success);
-  --el-color-success-light-3: #22c55e;
-  --el-color-success-light-5: #4ade80;
-  --el-color-success-light-9: var(--color-success-soft);
-  --el-color-warning: var(--color-warning);
-  --el-color-warning-light-3: #f59e0b;
-  --el-color-warning-light-5: #fbbf24;
-  --el-color-warning-light-9: var(--color-warning-soft);
-  --el-text-color-primary: var(--color-fg);
-  --el-text-color-regular: var(--color-fg-muted);
-  --el-text-color-secondary: var(--color-fg-muted);
-  /* 占位符也按普通文字处理：在浅灰底上必须达到 4.5:1。 */
-  --el-text-color-placeholder: var(--slate-600);
-  --el-text-color-disabled: #94a3b8;
-  --el-border-color: var(--color-border);
-  --el-border-color-light: var(--color-border);
-  --el-border-color-lighter: var(--slate-100);
-  --el-fill-color: var(--color-surface-subtle);
-  --el-fill-color-light: var(--color-surface-subtle);
-  --el-fill-color-lighter: var(--slate-50);
-  --el-fill-color-blank: var(--color-surface);
-  --el-bg-color: var(--color-surface);
-  --el-bg-color-overlay: var(--color-surface);
-  --el-border-radius-base: var(--radius-xs);
-  --el-border-radius-small: var(--radius-xs);
-  --el-border-radius-round: var(--radius-xs);
-  --el-box-shadow-light: var(--shadow-xs);
-  --el-font-family: var(--font-sans);
-  --el-font-size-base: 16px;
-  --el-font-size-small: 14px;
 }

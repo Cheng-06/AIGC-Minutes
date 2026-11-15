@@ -19,7 +19,7 @@ AIGC Minutes 是一个 AI 会议纪要工具：输入会议原文（粘贴文本
 
 ## 2. 技术栈与目录
 
-- 前端：Vue 3 + TypeScript + Vite + Vue Router + Element Plus（按需引入）+ Axios
+- 前端：React 18 + TypeScript + Vite + React Router + Ant Design 5 + Zustand + Axios
 - 后端：Node.js + Express 4 + TypeScript + Zod + Mammoth + docx
 - AI：任意 OpenAI 兼容接口，`server/src/services/ai.ts` 是唯一模型调用出口
 - 包管理器：npm（提交 `package-lock.json`）
@@ -37,19 +37,18 @@ server/src/
   lib/              错误类型、日志
 web/src/
   api/              axios 实例与接口函数
-  components/       SiteHeader、SiteFooter、InputPanel、SourcePanel、MinutesPreview、MinutesEditor
-  composables/      useMinutesStore、useLocalMinutes
+  components/       SiteHeader、SiteFooter、InputPanel、SourcePanel、MinutesPreview、MinutesEditor（.tsx + .css）
+  lib/              localMinutes：本地记录读写与配额降级
+  store/            minutesStore：Zustand 单例，当前纪要、加载、错误、脏状态
   data/             exampleMeeting（首页示例原文）
   views/            HomeView、WorkspaceView、HistoryView
-  styles/           tokens.css、main.css
-  auto-imports.d.ts 自动生成：Element Plus 函数式 API 声明
-  components.d.ts   自动生成：模板组件声明
+  styles/           tokens.css、main.css、antdTheme.ts
   router/           三页路由与页面标题
-  utils/            formatMinutes、download
+  utils/            formatMinutes、download、clipboard、confirm
 docs/design/        UI/UX 设计规范
 ```
 
-UI 设计规范：`docs/design/ui-ux-spec.md`（现代 SaaS 工作台，v1.0 与当前实现同步）。颜色、字体、间距等视觉值只从 `web/src/styles/tokens.css` 读取，组件里不写死颜色。
+UI 设计规范：`docs/design/ui-ux-spec.md`（现代 SaaS 工作台，v1.1 与当前实现同步）。颜色、字体、间距等视觉值只从 `web/src/styles/tokens.css` 读取，组件里不写死颜色；antd 主题在 `web/src/styles/antdTheme.ts` 中读取同一批 token，不另建一套色值。
 
 ## 3. 常用命令
 
@@ -82,7 +81,7 @@ npm run dev / typecheck / test / build / preview
 - 命名使用完整英文单词；注释解释「为什么」而非「做了什么」。
 - 关键业务逻辑（文本提取、AI 结构化、日期归一、Word 导出）必须有简短中文注释。
 - 不为未来需求提前抽象；文件数量保持克制。
-- 前端不引入 Pinia/Tailwind 等当前不需要的依赖。
+- 前端状态只用一个 Zustand 单例；不引入 Redux、Tailwind 等当前不需要的依赖。
 
 ## 7. 测试与验证
 
@@ -123,12 +122,13 @@ npm run dev / typecheck / test / build / preview
 
 ## 10. 当前状态
 
-- P0–P12 与三页现代 SaaS UI/UX 升级（Tasks 1–5）已完成，Task 6 文档同步已完成；MVP 可在本地运行并支持单进程静态部署。
-- 页面路由：`/` 首页、`/workspace` 工作台、`/history` 本地记录；设计规范 v1.0 在 `docs/design/ui-ux-spec.md`，与当前实现一致。
+- P0–P12 与三页现代 SaaS UI/UX 升级已完成；MVP 可在本地运行并支持单进程静态部署。
+- 前端已从 Vue 3 迁移到 React 18（`feat/react-migration` 分支）：路由改用 React Router，组件库改为 Ant Design 5，状态用 Zustand 单例；后端与 API 契约未变。
+- 页面路由：`/` 首页、`/workspace` 工作台、`/history` 本地记录；设计规范 v1.1 在 `docs/design/ui-ux-spec.md`，与当前实现一致。
 - 公开仓库：https://github.com/ACheng-06/AIGC-Minutes （MIT 许可证）。
-- 后端 50 个自动化测试、前端 19 个自动化测试通过；双端 typecheck 与 build 通过（最后核对：2026-10-22）。
-- Element Plus 已改为按需引入（`unplugin-auto-import` + `unplugin-vue-components`），`web/src/auto-imports.d.ts` 与 `web/src/components.d.ts` 由构建生成并需提交。
-- 单进程部署（`WEB_DIST`）实测页面、SPA 路由、健康检查、API 404；三页界面已用浏览器实测渲染与控制台（无 error/warning），但尚未纳入自动化测试。
+- 后端 50 个自动化测试、前端 19 个自动化测试通过；双端 typecheck 与 build 通过（最后核对：2026-11-15）。
+- antd 5 通过 ESM 按需 tree-shake，无需自动导入插件；工作台 chunk 约 734 kB（gzip 235 kB），超过 Vite 500 kB 提示线，属于 antd Table / DatePicker / Upload 的体积成本，已在 README 记录。
+- 单进程部署（`WEB_DIST`）实测页面、SPA 路由、健康检查、API 404；三页界面已用浏览器实测渲染、示例生成、保存到本地、历史载入，控制台无 error（仍有 React Router future flag 的 warn），但尚未纳入自动化测试。
 - 示例体验已实测：进入示例只填入原文，点击生成后才开始；未配置模型时展示内置结果并在结果上方明确标注，改动原文后仍走真实请求。缓存命中与复用提示另行实测。
 - 尚未执行真实模型调用：需要项目所有者配置 `server/.env` 后按 README 的「真实模型冒烟」清单手动验证。
 - 后续改动请继续遵守本文件的范围、类型同步、测试与 Git 规范。

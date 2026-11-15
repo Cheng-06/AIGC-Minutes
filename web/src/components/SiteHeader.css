@@ -1,21 +1,3 @@
-<template>
-  <header class="site-header">
-    <div class="site-header-inner">
-      <router-link class="brand" to="/" aria-label="AIGC Minutes 首页">
-        <span class="brand-mark" aria-hidden="true"></span>
-        <span class="brand-name">AIGC Minutes</span>
-      </router-link>
-
-      <nav class="site-nav" aria-label="主导航">
-        <router-link to="/" exact-active-class="is-active">首页</router-link>
-        <router-link to="/workspace" active-class="is-active">工作台</router-link>
-        <router-link to="/history" active-class="is-active">本地记录</router-link>
-      </nav>
-    </div>
-  </header>
-</template>
-
-<style scoped>
 .site-header {
   border-bottom: 1px solid var(--color-border);
   background: var(--color-surface);
@@ -139,4 +121,3 @@
     padding: 0 var(--space-2);
   }
 }
-</style>

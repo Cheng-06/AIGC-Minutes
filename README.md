@@ -2,7 +2,7 @@
 
 把会议原文，整理成能执行的纪要。
 
-![Vue 3](https://img.shields.io/badge/Vue-3-42b883?logo=vue.js&logoColor=white)
+![React 18](https://img.shields.io/badge/React-18-61dafb?logo=react&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178c6?logo=typescript&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-20.19%2B-339933?logo=node.js&logoColor=white)
 ![Express](https://img.shields.io/badge/Express-4-000000?logo=express&logoColor=white)
@@ -11,7 +11,7 @@
 
 AIGC Minutes 是一个 AI 会议纪要工具：粘贴会议原文，或上传 TXT / DOCX 文件，后端提取文本并调用任意 OpenAI 兼容模型，生成结构化纪要——**会议摘要、关键决策、待办事项**。结果可以在线编辑、复制为纯文本、导出 Word，并在浏览器本地保留最近 10 条记录。
 
-> 当前状态：MVP 已完成。后端 50 个、前端 19 个自动化测试通过，双端 typecheck / build 通过（2026-10-23）。真实模型调用需要配置 API Key 后按「真实模型冒烟」清单手动验证。
+> 当前状态：MVP 已完成。后端 50 个、前端 19 个自动化测试通过，双端 typecheck / build 通过（2026-11-15）。前端已从 Vue 3 迁移到 React 18。真实模型调用需要配置 API Key 后按「真实模型冒烟」清单手动验证。
 
 ## 目录
 
@@ -64,10 +64,10 @@ AIGC Minutes 把这件事做成一条可校对的工作流：
 
 | 层 | 技术 |
 | --- | --- |
-| 前端 | Vue 3、TypeScript、Vite、Vue Router、Element Plus（按需引入）、Axios |
+| 前端 | React 18、TypeScript、Vite、React Router、Ant Design 5、Zustand、Axios |
 | 后端 | Node.js、Express 4、TypeScript、Zod、Multer、Mammoth、docx |
 | AI | 任意 OpenAI 兼容接口 |
-| 测试 | Vitest、Supertest、@vue/test-utils（jsdom） |
+| 测试 | Vitest、Supertest、jsdom |
 
 ## 快速开始
 
@@ -194,7 +194,7 @@ curl.exe http://localhost:3000/api/health
 
 ```text
 Browser
-  Vue 3 + TypeScript + Vue Router + Element Plus (on-demand)
+  React 18 + TypeScript + React Router + Ant Design 5 + Zustand
   Axios + AbortController        localStorage (10 records)
         │ /api
         ▼
@@ -217,8 +217,8 @@ OpenAI-compatible /chat/completions
 | 业务编排 | 生成 + 缓存 + 元信息 | `server/src/services/minutes.ts` |
 | 缓存 | 进程内 LRU，30 分钟 TTL | `server/src/services/minutesCache.ts` |
 | 导出 | 生成固定版式 Word | `server/src/services/exportDocx.ts` |
-| 前端状态 | 当前纪要、加载、错误、脏状态 | `web/src/composables/useMinutesStore.ts` |
-| 本地记录 | localStorage 读写、配额降级 | `web/src/composables/useLocalMinutes.ts` |
+| 前端状态 | 当前纪要、加载、错误、脏状态 | `web/src/store/minutesStore.ts` |
+| 本地记录 | localStorage 读写、配额降级 | `web/src/lib/localMinutes.ts` |
 
 ## 关键设计
 
@@ -254,7 +254,7 @@ OpenAI-compatible /chat/completions
 
 ### 6. 设计 token 与可访问性
 
-颜色只从 `web/src/styles/tokens.css` 读取，按 primitive → semantic → Element Plus 三层组织，组件不写死十六进制。`tokens.css` 使用 `html:root` 而不是 `:root`，以稳定压过按需注入的 Element Plus 根变量。页面按 1440px 和 390px 两个视口验收，无横向溢出；正文、按钮、错误、成功、placeholder 的对比度均 ≥ 4.5:1（最低 4.83:1）。
+颜色只从 `web/src/styles/tokens.css` 读取，按 primitive → semantic 两层组织，组件不写死十六进制；Ant Design 的主题在 `web/src/styles/antdTheme.ts` 里读取同一批变量后注入 `ConfigProvider`。`tokens.css` 使用 `html:root` 而不是 `:root`，以稳定压过 antd 运行时注入的 CSS-in-JS 样式。页面按 1440px 和 390px 两个视口验收，无横向溢出；正文、按钮、错误、成功、placeholder 的对比度均 ≥ 4.5:1（最低 4.83:1）。
 
 可访问性包括 skip link、可见 label、`aria-live`、`focus-visible`、44px 触控目标和 `prefers-reduced-motion`。完整规范见 [`docs/design/ui-ux-spec.md`](docs/design/ui-ux-spec.md)。
 
@@ -390,7 +390,7 @@ Invoke-WebRequest -Uri http://localhost:3000/api/minutes/export `
 
 ## 测试与验证
 
-最近一次实际运行（2026-10-23）：
+最近一次实际运行（2026-11-15）：
 
 | 检查 | 命令 | 结果 |
 | --- | --- | --- |
@@ -401,7 +401,7 @@ Invoke-WebRequest -Uri http://localhost:3000/api/minutes/export `
 | 前端测试 | `cd web; npm test` | 5 个文件 / 19 个用例通过 |
 | 前端构建 | `cd web; npm run build` | 通过 |
 
-构建产物：主 JS 约 121 kB（gzip 47 kB），最大页面 chunk `WorkspaceView` 约 351 kB（gzip 117 kB），低于 500 kB 体积告警线。
+构建产物：主 JS 约 493 kB（gzip 163 kB），最大页面 chunk `WorkspaceView` 约 734 kB（gzip 235 kB）。迁移到 Ant Design 后体积高于 Vue + Element Plus 版本，超过 Vite 默认 500 kB 提示线；当前通过路由懒加载把工作台与本地记录拆成独立 chunk，首页不加载表格与日期组件。
 
 覆盖范围：Zod 归一化、决策 / 待办去重与超量裁剪、TXT / DOCX 提取（含 GBK、损坏文件）、AI JSON 解析与一次修复、超时 / 上游异常、缓存命中与失败不写缓存、输入校验、文件大小、导出 docx、localStorage 上限与配额异常。
 
@@ -470,23 +470,25 @@ AIGC Minutes/
 │   │   └── lib/                    # AppError、日志
 │   └── tests/                      # 50 个后端测试
 ├── web/
-│   └── src/
-│       ├── api/                    # axios 实例与接口函数
-│       ├── components/             # 输入、原文参考、纪要预览与编辑器
-│       ├── composables/            # 当前纪要状态、localStorage 历史
-│       ├── data/                   # 示例原文与内置示例纪要
-│       ├── router/                 # 三页路由与标题
-│       ├── styles/                 # tokens.css、main.css
-│       ├── types/                  # 与后端手工同步的类型
-│       ├── utils/                  # 复制、文本格式化、下载、文件名
-│       └── views/                  # HomeView、WorkspaceView、HistoryView
+│   ├── src/
+│   │   ├── api/                    # axios 实例与接口函数
+│   │   ├── components/             # 输入、原文参考、纪要预览与编辑器（.tsx + .css）
+│   │   ├── lib/                    # localStorage 本地记录
+│   │   ├── store/                  # Zustand 单例：当前纪要状态
+│   │   ├── data/                   # 示例原文与内置示例纪要
+│   │   ├── router/                 # 三页路由与标题
+│   │   ├── styles/                 # tokens.css、main.css、antdTheme.ts
+│   │   ├── types/                  # 与后端手工同步的类型
+│   │   ├── utils/                  # 复制、文本格式化、下载、确认弹窗
+│   │   └── views/                  # HomeView、WorkspaceView、HistoryView
+│   └── vite.config.ts              # React 插件与 /api 代理
 ├── docs/design/ui-ux-spec.md       # UI/UX 设计规范
 ├── AGENTS.md                       # 开发约定与协作规范
 ├── README.md
 └── LICENSE
 ```
 
-前端测试与对应模块放在同一目录（`api/`、`composables/`、`data/`、`utils/`），共 19 个。
+前端测试与对应模块放在同一目录（`api/`、`lib/`、`data/`、`utils/`），共 19 个。
 
 ## AI 协作说明
 

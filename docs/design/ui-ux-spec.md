@@ -1,11 +1,11 @@
 # AIGC Minutes UI/UX 设计规范
 
-- 版本：v1.0（已实现）
-- 日期：2026-10-22
+- 版本：v1.1（React 迁移后）
+- 日期：2026-11-15
 - 范围：仅前端 `web/`；不改后端 API、Schema 或错误码
-- 状态：Tasks 1–5 已落地；本文档随 Task 6 同步为最终实现说明
+- 状态：Tasks 1–6 已落地；前端由 Vue 3 迁移到 React 18，设计系统与视觉值保持不变
 
-> 本文档描述当前代码中的设计系统，而不是尚未执行的草案。颜色、字体、间距、圆角等视觉值以 `web/src/styles/tokens.css` 为准；页面结构以对应 `.vue` 文件为准。
+> 本文档描述当前代码中的设计系统，而不是尚未执行的草案。颜色、字体、间距、圆角等视觉值以 `web/src/styles/tokens.css` 为准；页面结构以对应 `.tsx` 文件为准。
 
 ---
 
@@ -37,7 +37,7 @@
 | `/workspace` | `WorkspaceView` | 输入/原文参考 + 纪要编辑、复制、导出、保存 |
 | `/history` | `HistoryView` | 本地记录档案索引，最多 10 条 |
 
-路由使用懒加载；每个路由有 `meta.title`，`afterEach` 更新 `document.title`。
+路由使用懒加载；每个路由有 `handle.title`，由 `App` 中的 `useMatches` 更新 `document.title`。
 
 ### 2.2 核心流程
 
@@ -58,11 +58,13 @@
 
 ## 3. 设计 tokens
 
-### 3.1 三层结构
+### 3.1 两层结构
 
-`primitive`（原始色/字号/间距）→ `semantic`（页面语义）→ `Element Plus` 变量映射。组件只使用 semantic 变量，不直接写十六进制颜色。
+`primitive`（原始色/字号/间距）→ `semantic`（页面语义）。组件只使用 semantic 变量，不直接写十六进制颜色。
 
-`tokens.css` 使用 `html:root` 而非 `:root`，以稳定压过按需注入的 Element Plus 根变量；这是本项目处理样式注入顺序的约定。
+antd 的主题在 `web/src/styles/antdTheme.ts` 里通过 `getComputedStyle` 读取 semantic 变量后注入 `ConfigProvider`，因此 `tokens.css` 仍是唯一颜色来源。
+
+antd 通过 CSS-in-JS 在运行时向 `<head>` 注入样式，`tokens.css` 使用 `html:root` 提高选择器优先级，避免注入顺序导致变量被覆盖。
 
 ### 3.2 中性色与品牌色
 
@@ -78,7 +80,7 @@
 | `--white` | `#FFFFFF` | 内容面 |
 | `--blue-50` | `#EFF6FF` | 当前导航、浅蓝提示底 |
 | `--blue-100` | `#DBEAFE` | 浅蓝边框 |
-| `--blue-500` | `#3B82F6` | Element Plus light-3 |
+| `--blue-500` | `#3B82F6` | 辅助蓝，用于浅一档强调 |
 | `--blue-600` | `#2563EB` | 主操作、链接、焦点 |
 | `--blue-700` | `#1D4ED8` | 主操作 hover |
 | `--red-50` | `#FEF2F2` | 错误浅底 |
@@ -149,11 +151,11 @@
 
 卡片优先使用 1px 边框 + 极浅阴影；不使用大圆角、彩色阴影或多层投影。
 
-### 3.6 Element Plus 映射
+### 3.6 Ant Design 主题映射
 
-在 `tokens.css` 覆盖 `--el-color-primary`、`--el-color-primary-dark-2`、`--el-color-primary-light-*`、错误/成功/警告、文字色、边框色、填充色、圆角、字体和阴影。组件内不再单独重写 Element Plus 的默认主色。
+`web/src/styles/antdTheme.ts` 在应用启动时读取 `--color-primary`、`--color-danger`、`--color-fg`、`--color-border`、`--font-sans` 等 semantic 变量，写入 `ConfigProvider` 的 `theme.token`。组件内不再单独重写 antd 的默认主色；按钮、输入框等细节用 `.ant-*` 选择器按 semantic 变量覆盖。
 
-Element Plus 使用 `unplugin-auto-import` + `unplugin-vue-components` 按需引入；`web/src/auto-imports.d.ts` 与 `web/src/components.d.ts` 由构建生成并提交。
+antd 5 使用 ESM 与 CSS-in-JS，构建时按引用 tree-shake，不需要 `unplugin-auto-import` / `unplugin-vue-components`，也没有自动生成的 `auto-imports.d.ts` 与 `components.d.ts`。
 
 ### 3.7 对比度
 
@@ -175,7 +177,7 @@ Element Plus 使用 `unplugin-auto-import` + `unplugin-vue-components` 按需引
 
 - `SiteHeader`：69px 高、白色表面、1px 底边；左侧蓝色圆角品牌标记 + 站点名；右侧三页导航；当前页为浅蓝 pill。
 - `SiteFooter`：白色表面、1px 顶边；左侧 AI 提示 + 本地记录隐私提示；右侧品牌与 GitHub 链接。
-- `App.vue`：skip link → header → `main#main` → footer；`main` 使用 `tabindex="-1"` 以支持路由后聚焦。
+- `App.tsx`：skip link → header → `main#main` → footer；`main` 使用 `tabindex="-1"` 以支持路由后聚焦。
 - 最大宽度：首页 `1240px`，工作台 `1360px`，历史 `1120px`；左右安全边距 `clamp(16px, 4vw, 40px)`。
 
 ### 4.2 首页
@@ -274,7 +276,7 @@ Element Plus 使用 `unplugin-auto-import` + `unplugin-vue-components` 按需引
 
 - 语义结构：每页一个 `h1`；首页/工作台/历史使用 `h1 → h2 → h3`；Header 品牌不是 `h1`。
 - 表单：可见 `<label for>`；补充 `aria-describedby`；错误 `role="alert"`；保存/复制状态用 `aria-live="polite"`。
-- 键盘：skip link；所有按钮/链接可 Tab；上传入口由 Element Plus 提供 `role="button"`、`tabindex="0"` 和 Enter/Space，不重复添加 tab stop。
+- 键盘：skip link；所有按钮/链接可 Tab；上传入口由 antd Upload 提供 `role="button"`、`tabindex="0"` 和 Enter/Space，不重复添加 tab stop。
 - 触控目标：主要按钮、载入/删除、输入操作至少 44×44px。
 - 颜色不是唯一信息：状态同时有文字/pill/边框；错误有文案。
 - 对比度：见 3.7；placeholder 也必须 ≥4.5:1。
@@ -296,20 +298,23 @@ Element Plus 使用 `unplugin-auto-import` + `unplugin-vue-components` 按需引
 
 | 文件 | 职责 |
 | --- | --- |
-| `web/src/styles/tokens.css` | primitive/semantic/Element Plus 变量；唯一颜色来源 |
+| `web/src/styles/tokens.css` | primitive/semantic 变量；唯一颜色来源 |
+| `web/src/styles/antdTheme.ts` | 读取 tokens 生成 antd `ThemeConfig` |
 | `web/src/styles/main.css` | reset、排版、focus、skip link、容器、按钮、reduced-motion |
-| `web/src/components/SiteHeader.vue` | 品牌、三页导航、当前页 pill、移动端三等分 |
-| `web/src/components/SiteFooter.vue` | AI 提示、隐私提示、GitHub |
-| `web/src/views/HomeView.vue` | 首页 hero、首屏、三步、输出、平滑滚动 |
-| `web/src/components/MinutesPreview.vue` | 真实工作台缩略图 |
-| `web/src/views/WorkspaceView.vue` | 工作台布局、状态、空态/错误/加载、原文参考 |
-| `web/src/components/InputPanel.vue` | 文本/文件输入、校验、示例入口 |
-| `web/src/components/SourcePanel.vue` | 生成后的原文参考 |
-| `web/src/components/MinutesEditor.vue` | 纪要编辑、状态、复制/导出/保存 |
-| `web/src/views/HistoryView.vue` | 本地记录档案索引、载入/删除/空态 |
-| `web/src/router/index.ts` | 三页路由、标题、滚动行为 |
-| `web/vite.config.ts` | Element Plus 按需引入、`/api` 代理 |
-| `web/src/main.ts` | 挂载应用、加载 tokens 与全局样式 |
+| `web/src/components/SiteHeader.tsx` | 品牌、三页导航、当前页 pill、移动端三等分 |
+| `web/src/components/SiteFooter.tsx` | AI 提示、隐私提示、GitHub |
+| `web/src/views/HomeView.tsx` | 首页 hero、首屏、三步、输出、平滑滚动 |
+| `web/src/components/MinutesPreview.tsx` | 真实工作台缩略图 |
+| `web/src/views/WorkspaceView.tsx` | 工作台布局、状态、空态/错误/加载、原文参考 |
+| `web/src/components/InputPanel.tsx` | 文本/文件输入、校验、示例入口 |
+| `web/src/components/SourcePanel.tsx` | 生成后的原文参考 |
+| `web/src/components/MinutesEditor.tsx` | 纪要编辑、状态、复制/导出/保存 |
+| `web/src/views/HistoryView.tsx` | 本地记录档案索引、载入/删除/空态 |
+| `web/src/store/minutesStore.ts` | Zustand 单例：当前纪要、加载、错误、脏状态 |
+| `web/src/lib/localMinutes.ts` | localStorage 读写与配额降级 |
+| `web/src/router/index.tsx` | 三页路由、标题、滚动行为 |
+| `web/vite.config.ts` | React 插件、`/api` 代理 |
+| `web/src/main.tsx` | 挂载应用、ConfigProvider、加载 tokens 与全局样式 |
 
 ---
 
@@ -324,9 +329,9 @@ Element Plus 使用 `unplugin-auto-import` + `unplugin-vue-components` 按需引
 - [x] 未配置模型、后端不可达、空输入、文件错误均有明确提示。
 - [x] 主按钮/导航/操作按钮 hover、focus-visible、44px 触控目标。
 - [x] 1440px 与 390px 无横向溢出；reduced-motion 生效。
-- [x] Element Plus 按需引入，主包与页面 chunk 低于 500KB 警告线。
+- [x] Ant Design 5 按需 tree-shake；路由懒加载保留独立页面 chunk（工作台 chunk 约 734 kB / gzip 235 kB，超过 Vite 默认 500 kB 提示线，已在 README 记录）。
 - [x] 颜色只从 tokens 读取；页面组件无硬编码颜色。
-- [x] 后端 50 个、前端 19 个自动化测试通过；双端 typecheck/build 通过（2026-10-22）。
+- [x] 后端 50 个、前端 19 个自动化测试通过；双端 typecheck/build 通过（2026-11-15，前端已迁移到 React）。
 
 ---
 
@@ -334,7 +339,7 @@ Element Plus 使用 `unplugin-auto-import` + `unplugin-vue-components` 按需引
 
 - 选择现代 SaaS 而不是复古编辑风：当前产品是高频工具，清晰、可扫描、低噪音比“纸张感”更重要。
 - 选择单一蓝色：减少视觉噪音，让错误红、成功绿和内容本身获得意义。
-- 保留 Element Plus 作为组件基础，但按需引入并统一 token；不引入第二套 UI 框架。
+- 以 Ant Design 5 作为组件基础，主题从 tokens 读取；不引入第二套 UI 框架。
 - 不做深色模式：当前需求没有要求，增加维护面；未来如做，先补语义 token。
 - 不做外部字体：减少网络依赖与首屏抖动。
 - 已知限制：没有自动化视觉回归/截图对比；`web/tmp` 截图只用于开发核对，不提交。演示模式、缓存和真实模型行为仍需按 README 手动冒烟。
@@ -346,5 +351,5 @@ Element Plus 使用 `unplugin-auto-import` + `unplugin-vue-components` 按需引
 - 改颜色/字体/间距：先改 `tokens.css`，再改组件；不要直接写十六进制。
 - 改页面结构：同步更新本文档第 4、5、10 节。
 - 改响应式/可访问性：同步第 7、8 节，并至少复测 1440px 与 390px。
-- 改 Element Plus 引入方式或版本：重新检查 `components.d.ts`、`auto-imports.d.ts` 和构建产物体积。
+- 改 antd 版本或主题：同步 `antdTheme.ts` 与 `.ant-*` 覆盖规则，并重新核对构建产物体积。
 - 提交前运行：后端 `npm run typecheck && npm test && npm run build`；前端同样，并记录实际结果。

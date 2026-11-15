@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { clearRecords, listRecords, removeRecord, saveRecord } from './useLocalMinutes';
+import { clearRecords, listRecords, removeRecord, saveRecord } from './localMinutes';
 import { LOCAL_HISTORY_KEY, LOCAL_HISTORY_LIMIT } from '../constants';
 import type { Minutes } from '../types/minutes';
 
@@ -17,7 +17,7 @@ beforeEach(() => {
   vi.restoreAllMocks();
 });
 
-describe('useLocalMinutes', () => {
+describe('本地记录读写', () => {
   it('保存后可读取，最新记录排在最前', () => {
     saveRecord(makeMinutes(1));
     saveRecord(makeMinutes(2));

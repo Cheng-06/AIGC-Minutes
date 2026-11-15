@@ -20,7 +20,7 @@ body {
   line-height: var(--line-height-body);
 }
 
-#app {
+#root {
   min-height: 100vh;
 }
 
@@ -169,7 +169,7 @@ main:focus-visible {
   font-weight: 600;
 }
 
-/* 可复用按钮；Element Plus 按钮另行按 token 覆盖。 */
+/* 可复用按钮；Ant Design 按钮另行按 token 覆盖。 */
 .button {
   display: inline-flex;
   align-items: center;
