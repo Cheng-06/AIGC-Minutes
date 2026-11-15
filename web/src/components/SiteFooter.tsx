@@ -8,7 +8,7 @@ export default function SiteFooter() {
         <p className="site-footer-links">
           <span translate="no">AIGC Minutes</span>
           <span aria-hidden="true">·</span>
-          <a href="https://github.com/ACheng-06/AIGC-Minutes" target="_blank" rel="noopener noreferrer">
+          <a href="https://github.com/Cheng-06/AIGC-Minutes" target="_blank" rel="noopener noreferrer">
             GitHub 源码
           </a>
         </p>

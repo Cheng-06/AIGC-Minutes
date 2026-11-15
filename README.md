@@ -82,7 +82,7 @@ AIGC Minutes 把这件事做成一条可校对的工作流：
 ### 1. 安装依赖
 
 ```powershell
-git clone https://github.com/ACheng-06/AIGC-Minutes.git
+git clone https://github.com/Cheng-06/AIGC-Minutes.git
 cd AIGC-Minutes
 
 cd server

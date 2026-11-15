@@ -125,7 +125,7 @@ npm run dev / typecheck / test / build / preview
 - P0–P12 与三页现代 SaaS UI/UX 升级已完成；MVP 可在本地运行并支持单进程静态部署。
 - 前端已从 Vue 3 迁移到 React 18（`feat/react-migration` 分支）：路由改用 React Router，组件库改为 Ant Design 5，状态用 Zustand 单例；后端与 API 契约未变。
 - 页面路由：`/` 首页、`/workspace` 工作台、`/history` 本地记录；设计规范 v1.1 在 `docs/design/ui-ux-spec.md`，与当前实现一致。
-- 公开仓库：https://github.com/ACheng-06/AIGC-Minutes （MIT 许可证）。
+- 公开仓库：https://github.com/Cheng-06/AIGC-Minutes （MIT 许可证）。
 - 后端 50 个自动化测试、前端 19 个自动化测试通过；双端 typecheck 与 build 通过（最后核对：2026-11-15）。
 - antd 5 通过 ESM 按需 tree-shake，无需自动导入插件；工作台 chunk 约 734 kB（gzip 235 kB），超过 Vite 500 kB 提示线，属于 antd Table / DatePicker / Upload 的体积成本，已在 README 记录。
 - 单进程部署（`WEB_DIST`）实测页面、SPA 路由、健康检查、API 404；三页界面已用浏览器实测渲染、示例生成、保存到本地、历史载入，控制台无 error（仍有 React Router future flag 的 warn），但尚未纳入自动化测试。
